@@ -1,0 +1,8 @@
+[2025-11-21 22:17:31,874] INFO - Initializing Training Pipeline Config
+[2025-11-21 22:17:31,875] INFO - Initializing Data Ingestion Config
+[2025-11-21 22:17:31,875] INFO - Starting data ingestion
+[2025-11-21 22:17:42,408] INFO - Performed train test split on the dataframe
+[2025-11-21 22:17:42,408] INFO - Exited split_data_as_train_test method of Data_Ingestion class
+[2025-11-21 22:17:42,409] INFO - Exporting train and test file path.
+[2025-11-21 22:17:42,459] INFO - Exported train and test file path.
+[2025-11-21 22:17:42,459] INFO - Data ingestion completed successfully

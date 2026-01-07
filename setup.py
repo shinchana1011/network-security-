@@ -32,7 +32,7 @@ def get_requirements()->List[str]:
 setup(
     name='Networksecurity',
     version='0.0.1',
-    author='Shinchan',
+    author='Shinchana',
     author_email="shinchanar.ai23@bmsce.ac.in",
     packages=find_packages(),
     install_requires=get_requirements(),

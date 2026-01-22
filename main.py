@@ -1,6 +1,7 @@
 from Networksecurity.components.data_ingestion import DataIngestion
+from Networksecurity.components.data_validation import DataValidation
 from Networksecurity.logging.logger import logging
-from Networksecurity.entity.config_entity import DataIngestionConfig, TrainingPipelineConfig
+from Networksecurity.entity.config_entity import DataIngestionConfig, TrainingPipelineConfig,DataValidationConfig
 from Networksecurity.exception.exception import NetworkSecurityException
 import sys
 
@@ -29,5 +30,12 @@ if __name__ == "__main__":
         print(dataingestionartifact)
         logging.info("Data ingestion completed successfully")
 
+        data_validation_config=DataValidationConfig(training_pipeline_config)
+        Data_validation=DataValidation(dataingestionartifact,data_validation_config)
+        logging.info("Initiate the data Validation")
+        data_validation_artifact=Data_validation.initiate_data_validation()
+        logging.info("data Validation Completed")
+        print(data_validation_artifact)
     except Exception as e:
         raise NetworkSecurityException(e, sys)
+

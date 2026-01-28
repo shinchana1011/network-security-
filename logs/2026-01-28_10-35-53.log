@@ -1,0 +1,6 @@
+[2026-01-28 10:36:03,026] INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+[2026-01-28 10:36:03,038] INFO - Accessing as shinchana1011
+[2026-01-28 10:36:04,270] INFO - HTTP Request: GET https://dagshub.com/api/v1/repos/shinchana1011/network-security- "HTTP/1.1 200 OK"
+[2026-01-28 10:36:05,458] INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+[2026-01-28 10:36:05,461] INFO - Initialized MLflow to track repo "shinchana1011/network-security-"
+[2026-01-28 10:36:05,463] INFO - Repository shinchana1011/network-security- initialized!

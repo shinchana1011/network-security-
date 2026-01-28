@@ -33,11 +33,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Utilities
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq unzip
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -64,6 +59,7 @@ jobs:
     name: Continuous Deployment
     needs: build-and-push-ecr-image
     runs-on: self-hosted
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -78,6 +74,10 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Debug image value
+        run: |
+          echo "IMAGE = '${{ needs.build-and-push-ecr-image.outputs.image }}'"
+
       - name: Pull Docker image
         run: |
           docker pull ${{ needs.build-and-push-ecr-image.outputs.image }}
@@ -89,9 +89,11 @@ jobs:
 
       - name: Run Docker container
         run: |
-          docker run -d -p 8080:8080 \
+          docker run -d \
+          --restart always \
+          -p 8080:8080 \
           --ipc="host" \
-          --name=networksecurity \
+          --name networksecurity \
           -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
           -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
           -e AWS_REGION=${{ secrets.AWS_REGION }} \

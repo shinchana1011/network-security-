@@ -8,12 +8,17 @@ Phishing websites are a major attack vector in network security. This project tr
 
 Rather than a single notebook, the project is built as a modular, production-style Python package (`Networksecurity/`) with clearly separated stages: ingestion, validation, transformation, training, and inference — so each stage can be tested, reused, and monitored independently.
 
+## Dataset
+
+The model is trained on the **Phishing Websites Dataset**, a publicly available dataset (originally published via the UCI Machine Learning Repository, also mirrored on Kaggle). It contains 30 URL- and page-based binary/categorical features — such as `having_IP_Address`, `URL_Length`, `Shortining_Service`, `having_At_Symbol`, `SSLfinal_State`, `having_Sub_Domain`, `Request_URL`, `URL_of_Anchor`, `Abnormal_URL`, and `Links_in_tags` — used to classify a website as legitimate (`1`) or phishing (`-1`). The raw data (`network_data/phisingData.csv`) is ingested into MongoDB, from where the pipeline pulls it for validation and training.
+
 ## Features
 
 - **Data ingestion** from a MongoDB collection into a versioned feature store
 - **Schema-based data validation** (`data_schema/schema.yaml`) to catch drift or malformed input before training
 - **Data transformation** pipeline (imputation/encoding/scaling) preceding model training
 - **Model training** with experiment tracking via **MLflow** (integrated with **DagsHub** for remote tracking)
+- **Artifact syncing to AWS S3** (`cloud/s3_syncer.py`) for backing up pipeline artifacts and models
 - **Custom exception handling and logging** throughout the pipeline for easier debugging
 - **FastAPI service** exposing:
   - `GET /train` — triggers the full training pipeline on demand
@@ -25,7 +30,7 @@ Rather than a single notebook, the project is built as a modular, production-sty
 | Layer | Technology |
 |---|---|
 | Language | Python 3.10 |
-| Data storage | MongoDB (`pymongo`) |
+| Data storage | MongoDB (`pymongo`), AWS S3 |
 | ML / Data | scikit-learn, pandas, numpy |
 | Experiment tracking | MLflow + DagsHub |
 | API | FastAPI, Uvicorn, Jinja2 templates |
@@ -36,23 +41,41 @@ Rather than a single notebook, the project is built as a modular, production-sty
 ## Project Structure
 network-security-/
 ├── Networksecurity/
-│   ├── components/        # DataIngestion, DataValidation, DataTransformation, ModelTrainer
-│   ├── entity/             # Config & artifact entity classes
-│   ├── exception/          # Custom NetworkSecurityException
-│   ├── logging/            # Centralized logger
-│   ├── pipeline/           # TrainingPipeline orchestration
-│   └── utils/               # ML utils (model estimator, object load/save)
+│   ├── cloud/           # AWS S3 artifact syncing (s3_syncer.py)
+│   ├── components/      # data_ingestion, data_validation, data_transformation, model_trainer
+│   ├── constant/        # Pipeline-wide constants
+│   ├── entity/          # Config & artifact entity classes
+│   ├── exception/       # Custom NetworkSecurityException
+│   ├── logging/         # Centralized logger
+│   ├── pipeline/        # TrainingPipeline orchestration
+│   └── utils/           # ML utils (model estimator, object load/save)
+│
 ├── data_schema/
-│   └── schema.yaml         # Expected feature schema for validation
-├── final_model/            # Serialized preprocessor.pkl and model.pkl
-├── prediction_output/      # Saved prediction CSVs
-├── templates/               # Jinja2 HTML templates (results table)
-├── .github/workflows/
-│   └── main.yml            # CI/CD: build, push to ECR, deploy
-├── app.py                   # FastAPI application (train/predict routes)
-├── main.py                  # CLI entry point to run the training pipeline
+│   └── schema.yaml      # Expected feature schema for validation
+│
+├── network_data/
+│   └── phisingData.csv  # Raw phishing dataset
+│
+├── valid.csv/
+│   └── test.csv         # Validated/test split from the validation stage
+│
+├── final_model/         # Serialized preprocessor.pkl and model.pkl
+├── prediction_output/   # Saved prediction CSVs
+├── templates/           # Jinja2 HTML templates (results table)
+│
+├── .github/
+│   └── workflows/
+│       └── main.yml     # CI/CD: build, push to ECR, deploy
+│
+├── app.py               # FastAPI application (train/predict routes)
+├── main.py              # CLI entry point to run the training pipeline
+├── push_data.py         # Script to push local CSV data into MongoDB
+├── test_mongodb.py      # MongoDB connection test script
+├── setup.py             # Package setup
+├── mlflow.db            # Local MLflow tracking store
 ├── Dockerfile
-└── requirements.txt
+├── requirements.txt
+└── .gitignore
 
 ## How It Works
 
@@ -65,7 +88,6 @@ network-security-/
 ## Running Locally
 
 ```bash
-# Clone and set up environment
 git clone https://github.com/shinchana1011/network-security-.git
 cd network-security-
 python -m venv venv
@@ -74,26 +96,6 @@ pip install -r requirements.txt
 ```
 
 Create a `.env` file with your MongoDB connection string:
-MONGODB_URL_KEY=<your-mongodb-connection-string>
-
-Run the API:
-
-```bash
-python app.py
-```
-
-The app starts on `http://localhost:8080`. Visit `/docs` for interactive Swagger API docs, `/train` to run the training pipeline, or `POST` a CSV file to `/predict` for inference.
-
-## Running with Docker
-
-```bash
-docker build -t network-security-app .
-docker run -p 8080:8080 --env-file .env network-security-app
-```
-
-## CI/CD
-
-Every push to `main` (excluding README changes) triggers a GitHub Actions workflow that builds the Docker image and pushes it to an AWS ECR repository, from which it is deployed — giving the project a full path from code commit to a running, containerized service.
 
 ## License
 This project is intended for academic and educational purposes.

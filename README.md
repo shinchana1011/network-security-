@@ -39,6 +39,7 @@ The model is trained on the **Phishing Websites Dataset**, a publicly available 
 | Config | python-dotenv, PyYAML |
 
 ## Project Structure
+```
 network-security-/
 ├── Networksecurity/
 │   ├── cloud/           # AWS S3 artifact syncing (s3_syncer.py)
@@ -76,7 +77,7 @@ network-security-/
 ├── Dockerfile
 ├── requirements.txt
 └── .gitignore
-
+```
 ## How It Works
 
 1. **Ingestion** — `DataIngestion` pulls records from a MongoDB collection into a pandas DataFrame and writes them to a feature store.
